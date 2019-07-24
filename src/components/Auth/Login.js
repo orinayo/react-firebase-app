@@ -42,6 +42,7 @@ class Login extends Component {
         })
         .catch(reason => {
           console.log(reason);
+          this.setState({ errors: errors.concat(reason), loading: false });
         });
     }
   };
