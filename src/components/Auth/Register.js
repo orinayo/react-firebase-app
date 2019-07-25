@@ -9,8 +9,8 @@ import {
   Icon
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import firebase from '../../firebase';
 import md5 from 'md5';
+import firebase from '../../firebase';
 
 class Register extends Component {
   state = {
@@ -24,29 +24,29 @@ class Register extends Component {
   };
 
   isFormValid = () => {
-    let errors = [];
+    const errors = [];
     let error;
     if (this.isFormEmpty(this.state)) {
       error = { message: 'Fill in all fields' };
       this.setState({ errors: errors.concat(error) });
       return false;
-    } else if (this.isPasswordValid(this.state)) {
-      error = { message: 'Passowrd is invalid' };
+    }
+    if (this.isPasswordValid(this.state)) {
+      error = { message: 'Password is invalid' };
       this.setState({ errors: errors.concat(error) });
       return false;
-    } else {
-      return true;
     }
+    return true;
   };
 
   isPasswordValid = ({ password, passwordConfirmation }) => {
     if (password.length < 6 || passwordConfirmation.length < 6) {
-      return false;
-    } else if (password !== passwordConfirmation) {
-      return false;
-    } else {
       return true;
     }
+    if (password !== passwordConfirmation) {
+      return true;
+    }
+    return false;
   };
 
   isFormEmpty = ({ username, email, password, passwordConfirmation }) => {
@@ -130,7 +130,7 @@ class Register extends Component {
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header as="h1" icon color="orange" textAlign="center">
             <Icon name="puzzle piece" color="orange" />
-            Register for Tori
+            Register for DevChat
           </Header>
           <Form onSubmit={this.handleSubmit} size="large">
             <Segment stacked>
@@ -173,7 +173,7 @@ class Register extends Component {
                 iconPosition="left"
                 placeholder="Password Confirmation"
                 onChange={this.handleChange}
-                type="text"
+                type="password"
                 className={this.handleInputError(errors, 'password')}
                 value={passwordConfirmation}
               />
