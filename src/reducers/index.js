@@ -17,13 +17,17 @@ const userReducer = (state = initialState, { type, payload }) => {
   return reducer[type] || state;
 };
 
-const initialChannelState = { currentChannel: null };
+const initialChannelState = { currentChannel: null, isPrivateChannel: false };
 
 const channelReducer = (state = initialChannelState, { type, payload }) => {
   const reducer = {
     [actionTypes.SET_CURRENT_CHANNEL]: {
       ...state,
       currentChannel: payload ? payload.currentChannel : null
+    },
+    [actionTypes.SET_PRIVATE_CHANNEL]: {
+      ...state,
+      isPrivateChannel: payload ? payload.isPrivateChannel : null
     }
   };
   return reducer[type] || state;

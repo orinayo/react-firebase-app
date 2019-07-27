@@ -7,10 +7,13 @@ import firebase from '../../firebase';
 
 class Messages extends Component {
   state = {
+    privateChannel: this.props.isPrivateChannel,
     messagesRef: firebase.database().ref('messages'),
+    privateMessagesRef: firebase.database().ref('privateMessages'),
     messages: [],
     progressBar: false,
     messagesLoading: true,
+    isChannelStarred: false,
     numUniqueUsers: '',
     searchLoading: false,
     searchTerm: '',
@@ -33,7 +36,8 @@ class Messages extends Component {
 
   addMessageListener = channelId => {
     const loadedMessages = [];
-    this.state.messagesRef.child(channelId).on('child_added', snap => {
+    const ref = this.getMessagesRef();
+    ref.child(channelId).on('child_added', snap => {
       loadedMessages.push(snap.val());
       this.setState({ messages: loadedMessages, messagesLoading: false });
       this.countUniqueUsers(loadedMessages);
@@ -44,6 +48,11 @@ class Messages extends Component {
     this.setState({ searchTerm: event.target.value, searchLoading: true }, () =>
       this.handleSearchMessages()
     );
+  };
+
+  getMessagesRef = () => {
+    const { messagesRef, privateMessagesRef, privateChannel } = this.state;
+    return privateChannel ? privateMessagesRef : messagesRef;
   };
 
   handleSearchMessages = () => {
@@ -84,7 +93,8 @@ class Messages extends Component {
     }
   };
 
-  displayChannelName = channel => (channel ? `#${channel.name}` : '');
+  displayChannelName = channel =>
+    channel ? `${this.state.privateChannel ? '@' : '#'}${channel.name}` : '';
 
   displayMessages = messages =>
     messages.length > 0 &&
@@ -96,9 +106,24 @@ class Messages extends Component {
       />
     ));
 
+  handleStar = () => {
+    this.setState(prevState => ({
+      isChannelStarred: !prevState.isChannelStarred
+    }), () => this.starChannel());
+  };
+
+
+  starChannel = () => {
+    const {isChannelStarred} = this.state
+    if (isChannelStarred) {
+
+    } else {
+
+    }
+  }
+
   render() {
     const {
-      messagesRef,
       messages,
       channel,
       user,
@@ -106,7 +131,9 @@ class Messages extends Component {
       numUniqueUsers,
       searchResults,
       searchTerm,
-      searchLoading
+      searchLoading,
+      privateChannel,
+      isChannelStarred
     } = this.state;
     return (
       <Fragment>
@@ -115,6 +142,9 @@ class Messages extends Component {
           numUniqueUsers={numUniqueUsers}
           handleSearchChange={this.handleSearchChange}
           searchLoading={searchLoading}
+          privateChannel={privateChannel}
+          handleStar={this.handleStar}
+          isChannelStarred={isChannelStarred}
         />
         <Segment>
           <Comment.Group
@@ -127,9 +157,10 @@ class Messages extends Component {
         </Segment>
         <MessageForm
           currentChannel={channel}
-          messagesRef={messagesRef}
           currentUser={user}
           isProgressBarVisible={this.isProgressBarVisible}
+          isPrivateChannel={privateChannel}
+          getMessagesRef={this.getMessagesRef}
         />
       </Fragment>
     );
