@@ -3,7 +3,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/storage';
 // Firebase configuration
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: 'AIzaSyC9qUqVq2SDWJfXps_IoZaIiMCbJf2_b2w',
   authDomain: 'react-chat-982e5.firebaseapp.com',
   databaseURL: 'https://react-chat-982e5.firebaseio.com',

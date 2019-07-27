@@ -75,7 +75,6 @@ class Register extends Component {
         .auth()
         .createUserWithEmailAndPassword(email.toLowerCase(), password)
         .then(createdUser => {
-          console.log(createdUser);
           createdUser.user
             .updateProfile({
               displayName: username,

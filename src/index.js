@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
-import App from './components/App';
-import Login from './components/Auth/Login';
-import Register from './components/Auth/Register';
-import registerServiceWorker from './registerServiceWorker';
 import {
   BrowserRouter as Router,
   Route,
   Switch,
   withRouter
 } from 'react-router-dom';
+import App from './components/App';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import registerServiceWorker from './registerServiceWorker';
 import firebase from './firebase';
 import { createStore } from 'redux';
 import { Provider, connect } from 'react-redux';
@@ -30,10 +30,11 @@ class Root extends Component {
         history.push('/');
       } else {
         history.push('/login');
-        clearUser()
+        clearUser();
       }
     });
   }
+
   render() {
     const { isLoading } = this.props;
     return isLoading ? (

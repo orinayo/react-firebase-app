@@ -7,8 +7,10 @@ import firebase from '../../firebase';
 class Channels extends Component {
   state = {
     user: this.props.currentUser,
+    activeChannel: '',
     channels: [],
     modal: false,
+    firstLoad: true,
     channelName: '',
     channelDetails: '',
     channelsRef: firebase.database().ref('channels')
@@ -18,12 +20,30 @@ class Channels extends Component {
     this.addListeners();
   }
 
+  componentWillUnmount() {
+    this.removeListeners();
+  }
+
   addListeners = () => {
     const loadedChannels = [];
     this.state.channelsRef.on('child_added', snap => {
       loadedChannels.push(snap.val());
-      this.setState({ channels: loadedChannels });
+      this.setState({ channels: loadedChannels }, () => this.setFirstChannel());
     });
+  };
+
+  removeListeners = () => {
+    this.state.channelsRef.off();
+  };
+
+  setFirstChannel = () => {
+    const { channels, firstLoad } = this.state;
+    const [firstChannel] = channels;
+    if (firstLoad && channels.length > 0) {
+      this.props.setCurrentChannel(firstChannel);
+      this.setActiveChannel(firstChannel);
+    }
+    this.setState({ firstLoad: false });
   };
 
   openModal = () => this.setState({ modal: true });
@@ -76,21 +96,27 @@ class Channels extends Component {
         name={channel.name}
         onClick={() => this.changeChannel(channel)}
         style={{ opacity: 0.7 }}
+        active={channel.id === this.state.activeChannel}
       >
         # {channel.name}
       </Menu.Item>
     ));
 
   changeChannel = channel => {
+    this.setActiveChannel(channel);
     const { setCurrentChannel } = this.props;
     setCurrentChannel(channel);
+  };
+
+  setActiveChannel = channel => {
+    this.setState({ activeChannel: channel.id });
   };
 
   render() {
     const { channels, modal } = this.state;
     return (
       <Fragment>
-        <Menu.Menu style={{ paddingBottom: '2em' }}>
+        <Menu.Menu className='menu'>
           <Menu.Item>
             <span>
               <Icon name="exchange" /> CHANNELS
