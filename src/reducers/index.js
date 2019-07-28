@@ -1,12 +1,12 @@
-import { combineReducers } from "redux";
-import * as actionTypes from "../actions/types";
+import { combineReducers } from 'redux';
+import * as actionTypes from '../actions/types';
 
 const initialUserState = {
   currentUser: null,
   isLoading: true
 };
 
-const user_reducer = (state = initialUserState, action) => {
+const userReducer = (state = initialUserState, action) => {
   switch (action.type) {
     case actionTypes.SET_USER:
       return {
@@ -25,10 +25,11 @@ const user_reducer = (state = initialUserState, action) => {
 
 const initialChannelState = {
   currentChannel: null,
-  isPrivateChannel: false
+  isPrivateChannel: false,
+  userPosts: null
 };
 
-const channel_reducer = (state = initialChannelState, action) => {
+const channelReducer = (state = initialChannelState, action) => {
   switch (action.type) {
     case actionTypes.SET_CURRENT_CHANNEL:
       return {
@@ -40,14 +41,36 @@ const channel_reducer = (state = initialChannelState, action) => {
         ...state,
         isPrivateChannel: action.payload.isPrivateChannel
       };
+    case actionTypes.SET_USER_POSTS:
+      return {
+        ...state,
+        userPosts: action.payload.userPosts
+      };
+    default:
+      return state;
+  }
+};
+
+const initialColorState = {
+  primaryColor: '#4c3c4c',
+  secondaryColor: '#eee'
+};
+
+const colorsReducer = (state = initialColorState, action) => {
+  switch (action.type) {
+    case actionTypes.SET_COLORS:
+      return {
+        ...action.payload
+      };
     default:
       return state;
   }
 };
 
 const rootReducer = combineReducers({
-  user: user_reducer,
-  channel: channel_reducer
+  user: userReducer,
+  channel: channelReducer,
+  colors: colorsReducer
 });
 
 export default rootReducer;
