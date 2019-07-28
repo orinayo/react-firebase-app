@@ -1,32 +1,57 @@
-import React, { Component } from 'react';
+import React from 'react';
 import uuidv4 from 'uuid/v4';
-import { Segment, Input, Button } from 'semantic-ui-react';
+import { Segment, Button, Input } from 'semantic-ui-react';
 import firebase from '../../firebase';
+
 import FileModal from './FileModal';
 import ProgressBar from './ProgressBar';
 
-export default class MessageForm extends Component {
+class MessageForm extends React.Component {
   state = {
-    uploadState: '',
-    uploadTask: null,
     storageRef: firebase.storage().ref(),
+    uploadTask: null,
+    uploadState: '',
+    percentUploaded: 0,
     message: '',
     channel: this.props.currentChannel,
     user: this.props.currentUser,
-    percentUploaded: 0,
-    errors: [],
     loading: false,
+    errors: [],
     modal: false
   };
 
+  openModal = () => this.setState({ modal: true });
+
+  closeModal = () => this.setState({ modal: false });
+
   handleChange = event => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
+    this.setState({ [event.target.name]: event.target.value });
+  };
+
+  createMessage = (fileUrl = null) => {
+    const {
+      user: { uid, displayName, photoURL }
+    } = this.state;
+    const message = {
+      timestamp: firebase.database.ServerValue.TIMESTAMP,
+      user: {
+        id: uid,
+        name: displayName,
+        avatar: photoURL
+      }
+    };
+    if (fileUrl !== null) {
+      message.image = fileUrl;
+    } else {
+      message.content = this.state.message;
+    }
+    return message;
   };
 
   sendMessage = () => {
     const { getMessagesRef } = this.props;
     const { message, channel, errors } = this.state;
+
     if (message) {
       this.setState({ loading: true });
       getMessagesRef()
@@ -36,48 +61,25 @@ export default class MessageForm extends Component {
         .then(() => {
           this.setState({ loading: false, message: '', errors: [] });
         })
-        .catch(reason => {
-          console.log(reason);
-          this.setState({ errors: errors.concat(reason), loading: false });
+        .catch(err => {
+          console.error(err);
+          this.setState({
+            loading: false,
+            errors: errors.concat(err)
+          });
         });
     } else {
-      this.setState({ errors: errors.concat({ message: 'Add a message' }) });
+      this.setState({
+        errors: errors.concat({ message: 'Add a message' })
+      });
     }
   };
-
-  createMessage = (fileUrl = null) => {
-    const message = {
-      timestamp: firebase.database.ServerValue.TIMESTAMP,
-      user: {
-        id: this.state.user.uid,
-        name: this.state.user.displayName,
-        avatar: this.state.user.photoURL
-      }
-    };
-    if (fileUrl != null) {
-      message.image = fileUrl;
-    } else {
-      message.content = this.state.message;
-    }
-    return message;
-  };
-
-  handleInputError = (errors, inputName) => {
-    return errors.some(({ message }) =>
-      message.toLowerCase().includes(inputName)
-    )
-      ? 'error'
-      : '';
-  };
-
-  openModal = () => this.setState({ modal: true });
-
-  closeModal = () => this.setState({ modal: false });
 
   getPath = () => {
-    return this.props.isPrivateChannel
-      ? `chat/private-${this.state.channel.id}`
-      : 'chat/public';
+    if (this.props.isPrivateChannel) {
+      return `chat/private-${this.state.channel.id}`;
+    }
+    return 'chat/public';
   };
 
   uploadFile = (file, metadata) => {
@@ -97,7 +99,6 @@ export default class MessageForm extends Component {
             const percentUploaded = Math.round(
               (snap.bytesTransferred / snap.totalBytes) * 100
             );
-            this.props.isProgressBarVisible(percentUploaded);
             this.setState({ percentUploaded });
           },
           err => {
@@ -145,40 +146,39 @@ export default class MessageForm extends Component {
   };
 
   render() {
-    const {
-      errors,
-      message,
-      loading,
-      modal,
-      uploadState,
-      percentUploaded
-    } = this.state;
+    // prettier-ignore
+    const { errors, message, loading, modal, uploadState, percentUploaded } = this.state;
+
     return (
       <Segment className="message__form">
         <Input
           fluid
-          onChange={this.handleChange}
           name="message"
+          onChange={this.handleChange}
+          value={message}
           style={{ marginBottom: '0.7em' }}
           label={<Button icon="add" />}
-          value={message}
           labelPosition="left"
-          className={this.handleInputError(errors, 'message')}
+          className={
+            errors.some(error => error.message.includes('message'))
+              ? 'error'
+              : ''
+          }
           placeholder="Write your message"
         />
         <Button.Group icon widths="2">
           <Button
             onClick={this.sendMessage}
-            color="orange"
             disabled={loading}
+            color="orange"
             content="Add Reply"
             labelPosition="left"
             icon="edit"
           />
           <Button
             color="teal"
-            onClick={this.openModal}
             disabled={uploadState === 'uploading'}
+            onClick={this.openModal}
             content="Upload Media"
             labelPosition="right"
             icon="cloud upload"
@@ -197,3 +197,5 @@ export default class MessageForm extends Component {
     );
   }
 }
+
+export default MessageForm;

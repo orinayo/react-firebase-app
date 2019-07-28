@@ -6,16 +6,18 @@ body,
   padding: 1em;
 }
 
+/* SidePanel.js */
+.menu {
+  padding-bottom: 2em;
+}
+
+/* Messages.js */
 .messages {
   height: 62vh;
   overflow-y: scroll;
 }
 
-.messages__progress {
-  height: 58vh;
-  overflow-y: scroll;
-}
-
+/* MessageForm.js */
 .message__form {
   position: fixed !important;
   bottom: 1em;
@@ -25,6 +27,7 @@ body,
   z-index: 200;
 }
 
+/* Message.js */
 .message__self {
   border-left: 2px solid orange;
   padding-left: 8px;
@@ -34,10 +37,7 @@ body,
   padding: 1em;
 }
 
+/* ProgressBar.js */
 .progress__bar {
   margin: 0.3em 0 0 0 !important;
-}
-
-.menu {
-  padding-bottom: 2em;
 }

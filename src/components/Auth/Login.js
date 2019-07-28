@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from "react";
+import firebase from "../../firebase";
 import {
   Grid,
   Form,
@@ -7,56 +8,55 @@ import {
   Header,
   Message,
   Icon
-} from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
-import firebase from '../../firebase';
+} from "semantic-ui-react";
+import { Link } from "react-router-dom";
 
-class Login extends Component {
+class Login extends React.Component {
   state = {
-    email: '',
-    password: '',
+    email: "",
+    password: "",
     errors: [],
     loading: false
   };
 
-  displayErors = errors =>
-    errors.map(({ message }, i) => <p key={i}>{message}</p>);
+  displayErrors = errors =>
+    errors.map((error, i) => <p key={i}>{error.message}</p>);
 
   handleChange = event => {
-    const { name, value } = event.target;
-    this.setState({ [name]: value });
+    this.setState({ [event.target.name]: event.target.value });
   };
-
-  isFormValid = (email, password) => email && password;
 
   handleSubmit = event => {
     event.preventDefault();
-    const { email, password, errors } = this.state;
-    if (this.isFormValid(email, password)) {
+    if (this.isFormValid(this.state)) {
       this.setState({ errors: [], loading: true });
       firebase
         .auth()
-        .signInWithEmailAndPassword(email.toLowerCase(), password)
+        .signInWithEmailAndPassword(this.state.email, this.state.password)
         .then(signedInUser => {
           console.log(signedInUser);
         })
-        .catch(reason => {
-          console.log(reason);
-          this.setState({ errors: errors.concat(reason), loading: false });
+        .catch(err => {
+          console.error(err);
+          this.setState({
+            errors: this.state.errors.concat(err),
+            loading: false
+          });
         });
     }
   };
 
+  isFormValid = ({ email, password }) => email && password;
+
   handleInputError = (errors, inputName) => {
-    return errors.some(({ message }) =>
-      message.toLowerCase().includes(inputName)
-    )
-      ? 'error'
-      : '';
+    return errors.some(error => error.message.toLowerCase().includes(inputName))
+      ? "error"
+      : "";
   };
 
   render() {
     const { email, password, errors, loading } = this.state;
+
     return (
       <Grid textAlign="center" verticalAlign="middle" className="app">
         <Grid.Column style={{ maxWidth: 450 }}>
@@ -73,10 +73,11 @@ class Login extends Component {
                 iconPosition="left"
                 placeholder="Email Address"
                 onChange={this.handleChange}
-                type="email"
-                className={this.handleInputError(errors, 'email')}
                 value={email}
+                className={this.handleInputError(errors, "email")}
+                type="email"
               />
+
               <Form.Input
                 fluid
                 name="password"
@@ -84,16 +85,17 @@ class Login extends Component {
                 iconPosition="left"
                 placeholder="Password"
                 onChange={this.handleChange}
-                type="password"
-                className={this.handleInputError(errors, 'password')}
                 value={password}
+                className={this.handleInputError(errors, "password")}
+                type="password"
               />
+
               <Button
                 disabled={loading}
+                className={loading ? "loading" : ""}
                 color="violet"
                 fluid
                 size="large"
-                className={loading ? 'loading' : ''}
               >
                 Submit
               </Button>
@@ -102,7 +104,7 @@ class Login extends Component {
           {errors.length > 0 && (
             <Message error>
               <h3>Error</h3>
-              {this.displayErors(errors)}
+              {this.displayErrors(errors)}
             </Message>
           )}
           <Message>

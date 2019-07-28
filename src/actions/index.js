@@ -1,10 +1,11 @@
-import * as actionTypes from './types';
+import * as actionTypes from "./types";
 
-export const setUser = currentUser => {
+/* User Actions */
+export const setUser = user => {
   return {
     type: actionTypes.SET_USER,
     payload: {
-      currentUser
+      currentUser: user
     }
   };
 };
@@ -15,11 +16,12 @@ export const clearUser = () => {
   };
 };
 
-export const setCurrentChannel = currentChannel => {
+/* Channel Actions */
+export const setCurrentChannel = channel => {
   return {
     type: actionTypes.SET_CURRENT_CHANNEL,
     payload: {
-      currentChannel
+      currentChannel: channel
     }
   };
 };
